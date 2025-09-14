@@ -1,0 +1,11 @@
+{
+  "qiita": {
+    "command": "npx",
+    "args": [
+      "qiita-api-mcp"
+    ],
+    "env": {
+      "QIITA_API_ACCESS_TOKEN": "QIITA_API_ACCESS_TOKEN"
+    }
+  }
+}

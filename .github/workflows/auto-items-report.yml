@@ -1,0 +1,46 @@
+name: Auto Qiita Items Report
+
+on:
+  schedule:
+    - cron: '0 * * * *'  # Run every hour at 0 minutes
+  workflow_dispatch:  # Allow manual execution
+
+jobs:
+  report:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      issues: write
+      id-token: write
+    env:
+      TZ: 'Asia/Tokyo'
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Run Claude Code
+        id: claude
+        uses: anthropics/claude-code-action@v1
+        env:
+          QIITA_API_ACCESS_TOKEN: ${{ secrets.QIITA_API_ACCESS_TOKEN }}
+        with:
+          claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          mcp_config: ".mcp.json"
+          claude_args: |
+            --allowedTools Bash(gh:*),Bash(date:*),mcp__qiita__get_items
+          prompt: |
+            Qiitaの記事を20件取得して出力してください。
+            出力先はIssueを作成してコンテンツに記載してください。
+
+            Issueのタイトルは「XXXX年XX月XX日 XX時 Qiita記事」としてください。
+            日時は date "+%Y年%m月%d日 %H時" を実行した結果を使用してください。
+
+            コンテンツのフォーマットは以下のようになります。
+
+            ```
+            # XXXX年XX月XX日 XX時 Qiita記事
+
+            - [タイトル](URL)
+            ```
